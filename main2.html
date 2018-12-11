@@ -2582,11 +2582,9 @@ input[type="search"]::-webkit-search-results-decoration{
             display: none;
             font-size: 14px;
             color: #666;
-            position: absolute;
-            bottom: 20px;
             width: 100%;
             text-align: center;
-            margin: 0 -15px;
+            margin: 20px -15px;
         }
         .weui-cell{
             justify-content: space-between;
@@ -2603,15 +2601,20 @@ input[type="search"]::-webkit-search-results-decoration{
         #options{
             margin-bottom: 15px;
         }
-	.bgimg{
-			position: fixed;
-    bottom: 0;
-			}
+	.bgimg {
+            position: absolute;
+            bottom: 0;
+            margin: 0 -15px;
+        }
+        .container{
+            position: relative;
+        }
     </style>
 </head>
 <body ontouchstart>
-	<img src="http://activity.china-dt.com/activity/resource/double12/image/bg.png" class="bgimg img-responsive">
+	
 <div class="container">
+	<img src="http://activity.china-dt.com/activity/resource/double12/image/bg.png" class="bgimg img-responsive">
     <div id="progress">
         <span id="current"></span>/5
     </div>
