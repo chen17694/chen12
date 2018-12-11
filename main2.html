@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" > 
+    	 <title>好友答题赢赠课</title>
+    	<script type="text/javascript" src="http://activity.china-dt.com/activity/js/jquery-3.1.1.min.js" ></script>
+    	<link rel="stylesheet" href="http://activity.china-dt.com/activity/resource/double12/css/bootstrap.min.css">
+    <style>
+        html{
+            height: 100%;
+        }
+        body{
+            height: 100%;
+            background: url("http://activity.china-dt.com/activity/resource/double12/image/bg.png") no-repeat bottom;
+            background-size: contain;
+        }
+        a{
+            text-decoration: none;
+        }
+        ul{
+            padding-left: 0;
+        }
+        #progress{
+            width: 43px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: #F3FAF2;
+            color: #5CB851;
+            margin: 25px auto;
+            text-align: center;
+        }
+        #title{
+            font-size: 17px;
+            color: #313131;
+        }
+        #title img{
+            margin-top: 15px;
+            width: 100px;
+            display: block;
+        }
+        #answers ul li{
+            /* height: 43px; */
+            background: #f1f1f1;
+            border-radius: 5px;
+            color: #313131;
+            font-size: 14px;
+        }
+        #answers ul li.optionRight{
+            background: #5CB851;
+            color: #fff;
+        }
+        #answers ul li.optionError{
+            background: #EB6100;
+            color: #fff;
+        }
+        #tips{
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        #jump{
+            display: none;
+            font-size: 14px;
+            color: #666;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            margin: 0 -15px;
+        }
+        .c-weui-cells {
+            margin-top: 1.17647059em;
+            background-color: #FFFFFF;
+            line-height: 1.47058824;
+            font-size: 17px;
+            overflow: hidden;
+            position: relative;
+        }
+        .c-weui-cell{
+            padding: 10px 15px;
+            position: relative;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .c-weui-cell img.right{
+            width: 19px;
+            height: 14px;
+        }
+        .c-weui-cell img.wrong{
+            width: 16px;
+            height: 16px;
+        }
+        #options{
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body ontouchstart>
+<div class="container">
+    <div id="progress">
+        <span id="current"></span>/5
+    </div>
+    <div id="title">
+
+    </div>
+    <div id="answers">
+        <ul id="options">
+        </ul>
+    </div>
+    <div id="tips">
+        点击选项及选中该答案哦
+    </div>
+    <div id="jump"><span id="time"></span>秒后自动跳转到下一题</div>
+    <script>
+        //http://activity.china-dt.com/activity/service/activity/double12/getPaper
+        var num = 0;
+        var questionCount = 0;
+        var error = [];
+        var question = [
+            {
+                title: "第一代iPhone是谁来设计的？",
+                answer: [{index:"A",answer:"罗斯福"},{index:"B",answer:"乔布斯"},{index:"C",answer:"林肯"},{index:"D",answer:"库克"}],
+                correct: 1,
+                tips: "第一代iPhone是乔布斯设计的",
+                pic:'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1788562038,3472846301&fm=27&gp=0.jpg'
+            },
+            {
+                title: "6+3=？",
+                answer: [{index:"A",answer:7},{index:"B",answer:9},{index:"C",answer:6},{index:"D",answer:2}],
+                correct: 1,
+                tips: "6+3=9",
+                pic:''
+            }
+        ];
+
+
+
+        var paper;
+        var explain;
+        var totalScore = 0;
+
+        function circleAnswer(num) {
+            $('#current').html(num+1)
+            $('#options').html('');
+
+            //var img = question[num].pic ? '<img src="'+question[num].pic+' class="pic">' : '';
+
+            $('#title').html(paper.questions[num].ibquestion.qcontent);
+            for(var i=0; i<paper.questions[num].options.length; i++){
+                $('#options').append(' <li class="c-weui-cells option" data-id='+paper.questions[num].options[i].optionId+' data-value='+paper.questions[num].options[i].isAnswer+'>\n' +
+                '<div class="c-weui-cell">\n' +
+                //paper.questions[num].options[i].index + ' ' +
+                paper.questions[num].options[i].ocontent +  ' \n' +
+                '</div>\n' +
+                '</li>')
+
+                if("0" == paper.questions[num].options[i].isAnswer) {
+                	explain = paper.questions[num].options[i].oexplain;
+                }
+
+            }
+            var right;
+
+            $(".option").on("click", function () {
+            	var time = 1;
+            	var score = 0;
+                var $option = $(this);
+                if ($option.data("value") == "0") {
+                    $option.addClass("optionRight");
+                    $option.find('.c-weui-cell').append("<img class='right' src='${path}/resource/double12/image/right.png'>");
+                    tips = "答对了 ";// + explain;
+                    right=0;
+                    time = 1;
+                    score = paper.questions[num].ibquestion.qscore;
+                    debugger;
+                    totalScore += score;
+                } else {
+                    $option.addClass("optionError");
+                    $option.find('.c-weui-cell').append("<img class='wrong' src='${path}/resource/double12/image/wrong.png'>");
+                    tips = "答错了 " + explain;
+                    right=1;
+                    time = 3;
+                    error.push(num)
+                }
+                $("#tips").html(tips);
+                $(".option").off("click");
+
+
+
+                var resultItme = {userId:'${openId}',score:score,paperId:paper.ibpaper.paperId,questionId:paper.questions[num].ibquestion.questionId,optionIds:$option.data("id"),isRight:right,groupId:'${groupId}'};
+                submitSingleResult(resultItme);
+
+                //rList.push(resultItme);
+
+                num++;
+                if(num==questionCount){
+                	debugger;
+                    localStorage.score = error.join();
+                    var actassistancerecord =
+                    {userId:'${userId}',packageName:'${packageName}',paperId:paper.ibpaper.paperId,openId:'${openId}',score:totalScore,groupId:'${groupId}'};
+
+                    setTimeout(saveActassistance(actassistancerecord),2000);
+                    //setTimeout(submitResult, 3);
+                    //window.location.href = "${path}/service/activity/double12/score/paperId";
+                    return false
+                }
+
+
+                var interval = setInterval(function () {
+                    $("#jump").show()
+                    $("#time").html(time);
+                    if(time==0){
+                        clearInterval(interval)
+                        $("#jump").hide();
+                        $("#tips").html("点击选项及选中该答案哦")
+                        circleAnswer(num);
+                    }else{
+                        time--
+                    }
+                },1000)
+            });
+        }
+
+        //circleAnswer(num);
+        var rList = [];
+        function submitResult(){
+        	$.ajax({
+     			url : '$http://activity.china-dt.com/activity/service/activity/double12/resultSubmit?userId='+'${userId}'+"&packageName="+'${packageName}',
+     			//data: JSON.stringify({userId:'uid',paperId:'paperid',resultList:rList}),
+     			data: JSON.stringify(rList),
+     			contentType: "application/json",
+     			async : false,
+     			dataType : "json",
+     			type:"POST",
+     			success : function(data) {
+     				console.log(data);
+     				window.location.href = "${path}/service/activity/double12/score?packageName="+'${packageName}';
+     			}
+     		});
+        }
+
+        function submitSingleResult(singleResult){
+        	$.ajax({
+     			url : 'http://activity.china-dt.com/activity/service/activity/double12/singleResultSubmit?userId='+'${userId}'+"&packageName="+'${packageName}',
+     			//data: JSON.stringify({userId:'uid',paperId:'paperid',resultList:rList}),
+     			data: JSON.stringify(singleResult),
+     			contentType: "application/json",
+     			async : false,
+     			dataType : "json",
+     			type:"POST",
+     			success : function(data) {
+     				console.log(data);
+     				//window.location.href = "${path}/service/activity/double12/score?packageName="+'${packageName}';
+     			}
+     		});
+        }
+
+        function saveActassistance(actassistancerecord){
+        	$.ajax({
+     			url : 'http://activity.china-dt.com/activity/service/activity/double12/saveActassistance',
+     			//data: JSON.stringify({userId:'uid',paperId:'paperid',resultList:rList}),
+     			data: JSON.stringify(actassistancerecord),
+     			contentType: "application/json",
+     			async : false,
+     			dataType : "json",
+     			type:"POST",
+     			success : function(data) {
+     				console.log(data);
+     				window.location.href = "${path}/service/activity/double12/score?packageName="+'${packageName}';
+     			}
+     		});
+        }
+
+        var data = {"ibpaper":{"createDateTime":"2018-12-06 22:53:07","modifyDateTime":"2018-12-06 22:53:09","paperId":"paper8","pname":"测试试题8","pdescribe":"介绍","pstatus":0},"questions":[{"ibquestion":{"createDateTime":"2018-12-06 12:00:01","modifyDateTime":"2018-12-06 12:00:04","questionId":"q3","qcontent":"帝都突然降温，「小明」贴心地准备了帽⼦。可是「小美」担心新造型无法被 iPhone XR 的面容 ID 识别，你有什么建议给她吗?","qtype":"radio","qscore":20,"qstatus":0},"options":[{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o9","questionId":"q3","allowTxt":1,"isAnswer":1,"ocontent":"「小美」的担心是对的，不要戴了;","ostatus":0,"oscore":0,"osort":0,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o10","questionId":"q3","allowTxt":1,"isAnswer":1,"ocontent":"解锁手机的时候摘掉帽子和配饰;","ostatus":0,"oscore":0,"osort":1,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o11","questionId":"q3","allowTxt":1,"isAnswer":1,"ocontent":"用新造型重新录入面容 ID;","ostatus":0,"oscore":0,"osort":2,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o12","questionId":"q3","allowTxt":1,"isAnswer":0,"ocontent":"不用担心，iPhone XR 依然可以快速识别。","ostatus":0,"oscore":0,"osort":3,"oexplain":"面容 ID 是以原深感摄像头系统、安全隔区和神经网络引擎这类精密技术所打造的面部识别功能。利用先进的机器学习识别，即使你戴着帽⼦，加个眼镜，它也一样认得你，哪怕面对大多数墨镜，都不在话下。你还可以向 MyCoach 私教进一步了解使用方法。\n法。"}]},{"ibquestion":{"createDateTime":"2018-12-06 22:55:04","modifyDateTime":"2018-12-06 22:55:07","questionId":"q1","qcontent":"「小美」刚刚从国外留留学归来，考虑到她有国内和国外两个⼿手机卡，「小明」想送她 ⼀一款合适的 iPhone。你会推荐「小明」怎么选择？ ","qtype":"radio","qscore":20,"qstatus":0},"options":[{"createDateTime":"2018-12-06 22:59:38","modifyDateTime":"2018-12-06 22:59:41","optionId":"o1","questionId":"q1","allowTxt":1,"isAnswer":1,"ocontent":"不需要送她手机，换上国内的SIM卡就好","ostatus":0,"oscore":0,"osort":0,"oexplain":""},{"createDateTime":"2018-12-06 23:01:20","modifyDateTime":"2018-12-06 23:01:23","optionId":"o3","questionId":"q1","allowTxt":1,"isAnswer":1,"ocontent":"当然是选择一部最好看的；","ostatus":0,"oscore":0,"osort":2,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o4","questionId":"q1","allowTxt":1,"isAnswer":0,"ocontent":"送小美一部支持双SIM卡的手机，比如 iPHone XR.","ostatus":0,"oscore":0,"osort":2,"oexplain":"全新推出的 iPHone XR 和 iPhone XS MAX 支持通过两张 nano-SIM 卡来使用双卡功能。这项功能使用双卡双待 (DSDS) 技术，即两张 SIM 卡都能拨打和接听电话。你还可以向 MyCoach 私教进一步了解常用注意事项。"},{"createDateTime":"2018-12-06 23:00:45","modifyDateTime":"2018-12-06 23:00:47","optionId":"o2","questionId":"q1","allowTxt":1,"isAnswer":1,"ocontent":"准备两台吧，每台放一张SIM卡；","ostatus":0,"oscore":0,"osort":3,"oexplain":""}]},{"ibquestion":{"createDateTime":"2018-12-06 12:00:01","modifyDateTime":"2018-12-06 12:00:04","questionId":"q7","qcontent":"在一面神奇的镜子前，「小美」仿佛进⾏了一场与自⼰灵魂的对话。你知道她是如何使⽤ iPhone XR 拍摄的吗?","qtype":"radio","qscore":20,"qstatus":0},"options":[{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o25","questionId":"q7","allowTxt":1,"isAnswer":1,"ocontent":"拍摄两张不同角度的照⽚，后期拼图;","ostatus":0,"oscore":0,"osort":0,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o28","questionId":"q7","allowTxt":1,"isAnswer":0,"ocontent":"原生相机 app 的全景模式，掌握诀窍之后玩法多多。","ostatus":0,"oscore":0,"osort":0,"oexplain":"自带的全景模式可以帮你拍摄精美的广角照片。它除了可以让你的照片整体视野效果更宽阔，还有不少创意的玩法，比如拍摄全景分身、镜⼦分身等。建议你向 MyCoach 私教了解更多创意使用方法。"},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o26","questionId":"q7","allowTxt":1,"isAnswer":1,"ocontent":"用第三方摄影 app;","ostatus":0,"oscore":0,"osort":1,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o27","questionId":"q7","allowTxt":1,"isAnswer":1,"ocontent":"「小美」找到了和她长相差不多的人，共同完成拍摄;","ostatus":0,"oscore":0,"osort":2,"oexplain":""}]},{"ibquestion":{"createDateTime":"2018-12-06 12:00:01","modifyDateTime":"2018-12-06 12:00:04","questionId":"q8","qcontent":"安东尼奥·高迪说过，直线属于人类，曲线属于上帝。⽽「小明」却对各种高耸入云的现代建筑着迷，「小美」教了他一个简单的拍摄方法可以捕捉到建筑全景。你知道是什么⽅法吗?","qtype":"radio","qscore":20,"qstatus":0},"options":[{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o29","questionId":"q8","allowTxt":1,"isAnswer":1,"ocontent":"趴在地上向上拍，相机会拍摄到更多内容;","ostatus":0,"oscore":0,"osort":0,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o32","questionId":"q8","allowTxt":1,"isAnswer":0,"ocontent":"使⽤ iPhone XR 原生相机 app 的全景模式，纵向拍摄建筑物。","ostatus":0,"oscore":0,"osort":0,"oexplain":"自带的全景模式可以帮你拍摄精美的广角照片，让你的照片整体视野效果更宽阔。开启全景模式后会在屏幕中央显示引导条，轻点屏幕中的箭头可改变它的方向。当然，纵向拍摄也是一个非常有创意的拍摄方法，适合拍摄高耸的建筑等。建议你向 MyCoach 私教了解更多创意使用方法。"},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o30","questionId":"q8","allowTxt":1,"isAnswer":1,"ocontent":"站在更远更高的位置;","ostatus":0,"oscore":0,"osort":1,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o31","questionId":"q8","allowTxt":1,"isAnswer":1,"ocontent":"选择一款超广⻆外置镜头;","ostatus":0,"oscore":0,"osort":2,"oexplain":""}]},{"ibquestion":{"createDateTime":"2018-12-06 12:00:01","modifyDateTime":"2018-12-06 12:00:04","questionId":"q10","qcontent":"快乐的旅⾏即将结束，两位⼩伙伴收获了很多精彩有趣的瞬间，你能帮他们快速回忆旅途中欢乐的点滴吗?","qtype":"radio","qscore":20,"qstatus":0},"options":[{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o37","questionId":"q10","allowTxt":1,"isAnswer":1,"ocontent":"「小明」和「小美」各自发朋友圈;","ostatus":0,"oscore":0,"osort":0,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o40","questionId":"q10","allowTxt":1,"isAnswer":0,"ocontent":"用照⽚ app 自带的回忆功能，一键生成动态影集，顺便搭配煽情的 BGM(背景⾳乐)。","ostatus":0,"oscore":0,"osort":0,"oexplain":"照⽚ app 的「回忆」功能，可根据人物、地点、节日、宠物、孩子、喜爱的活动、婚礼、纪念日、城市夜游等信息，将你的这些珍贵时刻自动创建为精美的影集。而且它们还是可被分享的，让你能和更多人一起感受这种难忘的体验。你还可以向\nMyCoach 私教进一步了解使⽤方法。"},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o38","questionId":"q10","allowTxt":1,"isAnswer":1,"ocontent":"交换手机，翻看彼此的照片;","ostatus":0,"oscore":0,"osort":1,"oexplain":""},{"createDateTime":"2018-12-06 23:03:00","modifyDateTime":"2018-12-06 23:03:04","optionId":"o39","questionId":"q10","allowTxt":1,"isAnswer":1,"ocontent":"询问 MyCoach 私教有什么好建议;","ostatus":0,"oscore":0,"osort":2,"oexplain":""}]}]}
+        paper = data;
+        questionCount = data.questions.length;
+        circleAnswer(num);
+
+    </script>
+</div>
+</body>
+</html>
