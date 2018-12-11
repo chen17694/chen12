@@ -12,14 +12,11 @@
         }
         body{
             height: 100%;
-            background: url("http://activity.china-dt.com/activity/resource/double12/image/bg.png") no-repeat bottom;
+            background: url("${path}/resource/double12/image/bg.png") no-repeat bottom;
             background-size: contain;
         }
         a{
             text-decoration: none;
-        }
-        ul{
-            padding-left: 0;
         }
         #progress{
             width: 43px;
@@ -68,30 +65,15 @@
             text-align: center;
             margin: 0 -15px;
         }
-        .c-weui-cells {
-            margin-top: 1.17647059em;
-            background-color: #FFFFFF;
-            line-height: 1.47058824;
-            font-size: 17px;
-            overflow: hidden;
-            position: relative;
-        }
-        .c-weui-cell{
-            padding: 10px 15px;
-            position: relative;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            align-items: center;
+        .weui-cell{
             justify-content: space-between;
+            display: inherit;
         }
-        .c-weui-cell img.right{
+        .weui-cell img.right{
             width: 19px;
             height: 14px;
         }
-        .c-weui-cell img.wrong{
+        .weui-cell img.wrong{
             width: 16px;
             height: 16px;
         }
